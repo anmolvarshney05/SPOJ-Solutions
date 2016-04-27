@@ -1,69 +1,130 @@
-#include <bits/stdc++.h>
+/* Created by Anmol Varshney */
+
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <vector>
+#include <list>
+#include <map>
+#include <set>
+#include <queue>
+#include <deque>
+#include <stack>
+#include <bitset>
+#include <algorithm>
+#include <functional>
+#include <numeric>
+#include <utility>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <cstdio>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+
 using namespace std;
-typedef long long int LL;
-bool mem[9][82];
-LL D[9][82];
-int prms[29] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109};
-bool isprime(long long int  x)
+
+#define ARRAY_SIZE(arr) sizeof(arr)/sizeof(arr[0])
+#define INF_LL 9223372036854775807LL
+#define PI acos(-1.0)
+#define llu long long unsigned
+#define ll long long int
+#define ld long int
+#define iter(i,a) for( typeof(a.begin()) i=a.begin();i!=a.end();i++)
+#define REP(p,a,b) for(int p=a;p<b;p++)
+#define mod 1000000007
+#define getchar_unlocked getchar
+#define pb(f) push_back(f)
+#define pob(f) pop_back(f)
+#define pf(f) push_front(f)
+#define pof(f) pop_front(f)
+#define mkp(a,b) make_pair(a,b)
+#define fst first
+#define snd second
+#define pii pair<int,int>
+#define ins(a) insert(a)
+
+ll gcd(ll a,ll b)
 {
-	if(x<0)
-	return 0;
- 
-	for(int i=0;i<29;i++)
-		if(prms[i]==x)
-			return 1;
- 
-	return 0;
-}
-LL f(int digit,int sum)
-{
-	if(digit==0)return (sum==0);
-	if(mem[digit][sum]) return D[digit][sum];
-	mem[digit][sum]=true;
-	LL ret = 0LL;
-	for(int i=0;i<=9;i++)
-	{
-		ret+=f(digit-1,sum-i);
-	}
-	D[digit][sum]=ret;
-	return ret;
+    if(b>a) return gcd(b,a);
+    else if(b!=0) return gcd(b,a%b);
+    else return a;
 }
 
-LL solve(LL x)
+string to_string(ll num)
 {
-	LL ret=0;
-	char cad[10];
-	sprintf(cad,"%lld",x);
-	int len=strlen(cad);
-	int qued=len;
-	int sum=0;
-	for(int i=0;i<len;i++)
-	{
-		qued--;
-		int d=cad[i]-'0';
-		for(int j=0;j<d;j++)
-		{
-			for(int l=0;l<=qued*9;l++)
-			{
-				int temp = sum+l+j;
-				if(isprime(temp))
-				ret+=f(qued,l);
-			}
-		}
-		sum+=d;
-	}
-	return ret;
+    stringstream ss;
+    ss << num;
+    return ss.str();
+}
+
+set<int> s;
+int mark[101];
+
+void foo()
+{
+    for(int i=2;i*i<=100;i++)
+    {
+        if(mark[i]==0)
+        {
+            for(int j=i*2;j<=100;j+=i)
+                mark[j]=1;
+        }
+    }
+    for(int i=2;i<=100;i++)
+        if(mark[i]==0)
+            s.ins(i);
+}
+
+ll dp[10][2][70];
+int n;
+string y;
+
+ll f(int pos,bool smaller_or_not,int sum)
+{
+    if(pos==n)
+        return (s.find(sum)!=s.end());
+
+    if(dp[pos][smaller_or_not][sum]>=0)
+        return dp[pos][smaller_or_not][sum];
+
+    ll res=0;
+
+    REP(i,0,10)
+    {
+        if(smaller_or_not||(i<=(int)(y[pos]-'0')))
+        {
+            res+=f(pos+1,(smaller_or_not||(i<(int)(y[pos]-'0'))),sum+i);
+        }
+    }
+    dp[pos][smaller_or_not][sum]=res;
+    return res;
 }
 
 int main() {
-	int t;
-	scanf("%d",&t);
-	while(t--)
-	{
-		LL x,y;
-		scanf("%lld%lld",&x,&y);
-		LL ans=solve(y+1)-solve(x);
-		printf("%lld\n",ans);
-	}
-	return 0;
+    //freopen("input.txt","r",stdin);
+    //freopen("output.txt","w",stdout);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    int t,a,b;
+    ll ans;
+    cin>>t;
+    foo();
+    while(t--)
+    {
+        ans=0;
+        cin>>a>>b;
+        a--;
+        y=to_string(b);
+        n=y.size();
+        memset(dp,-1,sizeof dp);
+        ans=f(0,false,0);
+        y=to_string(a);
+        n=y.size();
+        memset(dp,-1,sizeof dp);
+        ans-=f(0,false,0);
+        cout<<ans<<endl;
+    }
+    return 0;
 }
